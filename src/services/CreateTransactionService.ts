@@ -1,8 +1,9 @@
-import { getRepository } from 'typeorm';
+import { getRepository, getCustomRepository } from 'typeorm';
 import AppError from '../errors/AppError';
 
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
+import TransactionRepository from '../repositories/TransactionsRepository';
 
 interface Request {
   title: string;
@@ -18,7 +19,7 @@ class CreateTransactionService {
     type,
     category,
   }: Request): Promise<Transaction> {
-    const transactionRepository = getRepository(Transaction);
+    const transactionRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getRepository(Category);
 
     const checkTransactionExist = await transactionRepository.findOne({
@@ -27,6 +28,14 @@ class CreateTransactionService {
 
     if (checkTransactionExist) {
       throw new AppError('Transaction already booked!');
+    }
+
+    const balance = await transactionRepository.getBalance();
+
+    if (type === 'outcome' && balance.total < value) {
+      throw new AppError(
+        'Transaction type outcome cannot be larger than balance total!',
+      );
     }
 
     const checkCategoryExist = await categoryRepository.findOne({
