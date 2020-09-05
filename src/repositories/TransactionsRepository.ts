@@ -15,25 +15,33 @@ class TransactionsRepository extends Repository<Transaction> {
       'transactions',
     ).getMany();
 
-    const balance = {
-      income: 0,
-      outcome: 0,
-      total: 0,
-    };
+    const { income, outcome } = transactions.reduce(
+      (accumulator, transaction) => {
+        switch (transaction.type) {
+          case 'income':
+            accumulator.income += transaction.value;
+            break;
 
-    transactions.map(({ type, value }) => {
-      if (type === 'income') {
-        balance.income += value;
-      } else {
-        balance.outcome += value;
-      }
+          case 'outcome':
+            accumulator.outcome += transaction.value;
+            break;
 
-      return null;
-    });
+          default:
+            break;
+        }
 
-    balance.total = balance.income - balance.outcome;
+        return accumulator;
+      },
+      {
+        income: 0,
+        outcome: 0,
+        total: 0,
+      },
+    );
 
-    return balance;
+    const total = income - outcome;
+
+    return { income, outcome, total };
   }
 }
 
