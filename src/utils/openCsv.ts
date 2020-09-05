@@ -1,14 +1,19 @@
 import csvParse from 'csv-parse';
 import fs from 'fs';
 
-interface Transctions {
+interface Transactions {
   title: string;
   type: string;
   value: number;
   category: string;
 }
 
-async function loadCSV(filePath: string): Promise<Transctions[]> {
+interface ReturnPromise {
+  transactions: Transactions[];
+  categories: string[];
+}
+
+async function loadCSV(filePath: string): Promise<ReturnPromise> {
   const readCSVStream = fs.createReadStream(filePath);
 
   const parseStream = csvParse({
@@ -19,8 +24,8 @@ async function loadCSV(filePath: string): Promise<Transctions[]> {
 
   const parseCSV = readCSVStream.pipe(parseStream);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const lines: any[] = [];
+  const transactions: Transactions[] = [];
+  const categories: string[] = [];
 
   parseCSV.on('data', line => {
     const transaction = {
@@ -30,14 +35,15 @@ async function loadCSV(filePath: string): Promise<Transctions[]> {
       category: line[3],
     };
 
-    lines.push(transaction);
+    transactions.push(transaction);
+    categories.push(transaction.category);
   });
 
   await new Promise(resolve => {
     parseCSV.on('end', resolve);
   });
 
-  return lines;
+  return { transactions, categories };
 }
 
 export default loadCSV;

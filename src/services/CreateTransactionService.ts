@@ -22,20 +22,20 @@ class CreateTransactionService {
     const transactionRepository = getCustomRepository(TransactionRepository);
     const categoryRepository = getRepository(Category);
 
-    const checkTransactionExist = await transactionRepository.findOne({
-      where: { title },
-    });
-
-    if (checkTransactionExist) {
-      throw new AppError('Transaction already booked!');
-    }
-
     const balance = await transactionRepository.getBalance();
 
     if (type === 'outcome' && balance.total < value) {
       throw new AppError(
         'Transaction type outcome cannot be larger than balance total!',
       );
+    }
+
+    const checkTransactionExist = await transactionRepository.findOne({
+      where: { title },
+    });
+
+    if (checkTransactionExist) {
+      throw new AppError('Transaction already booked!');
     }
 
     const checkCategoryExist = await categoryRepository.findOne({
