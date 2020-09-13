@@ -60,7 +60,7 @@ class CreateTransactionService {
       title,
       value,
       type: type === 'income' ? 'income' : 'outcome',
-      category_id: categoryToBook.id,
+      category: categoryToBook,
     });
 
     await transactionRepository.save(transaction);
