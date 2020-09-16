@@ -3,9 +3,9 @@ import { EntityRepository, Repository } from 'typeorm';
 import Transaction from '../models/Transaction';
 
 interface Balance {
-  income: number;
-  outcome: number;
-  total: number;
+  income: string;
+  outcome: string;
+  total: string;
 }
 
 @EntityRepository(Transaction)
@@ -17,11 +17,11 @@ class TransactionsRepository extends Repository<Transaction> {
       (accumulator, transaction) => {
         switch (transaction.type) {
           case 'income':
-            accumulator.income += transaction.value;
+            accumulator.income += parseFloat(transaction.value);
             break;
 
           case 'outcome':
-            accumulator.outcome += transaction.value;
+            accumulator.outcome += parseFloat(transaction.value);
             break;
 
           default:
@@ -39,7 +39,11 @@ class TransactionsRepository extends Repository<Transaction> {
 
     const total = income - outcome;
 
-    return { income, outcome, total };
+    return {
+      income: income.toString(),
+      outcome: outcome.toString(),
+      total: total.toString(),
+    };
   }
 }
 

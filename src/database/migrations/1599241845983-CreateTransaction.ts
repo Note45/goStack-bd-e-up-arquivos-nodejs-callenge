@@ -20,7 +20,7 @@ export default class CreateTransaction1599241845983
           },
           {
             name: 'value',
-            type: 'float(2)',
+            type: 'varchar',
           },
           {
             name: 'type',

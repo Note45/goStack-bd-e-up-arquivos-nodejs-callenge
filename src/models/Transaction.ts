@@ -22,7 +22,7 @@ class Transaction {
   type: 'income' | 'outcome';
 
   @Column()
-  value: number;
+  value: string;
 
   @Column()
   category_id: string;
